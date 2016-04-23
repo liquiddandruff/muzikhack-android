@@ -80,15 +80,13 @@ public class MainActivity extends AppCompatActivity {
         mza.getBatteryLevel(new IBatteryLevelCallback() {
             @Override
             public void onResponseReceived(int i) {
-                Log.i(TAG, "battery");
-                Log.i(TAG, Integer.toString(i));
+                Log.i(TAG, "battery: " + Integer.toString(i));
             }
         });
         mza.registerForAccelerometerDataStream(new IAccelerometerCallback() {
             @Override
             public void onResponseReceived(float x, float y, float z, float norm, float forwardAngle, float sideAngle) {
-                Log.i(TAG, "accel");
-                Log.i(TAG, String.format("X:%f Y:%f Z:%f N:%f FA:%f SA:%f", x, y, z, norm, forwardAngle, sideAngle));
+                Log.i(TAG, String.format("accel X:%f Y:%f Z:%f N:%f FA:%f SA:%f", x, y, z, norm, forwardAngle, sideAngle));
             }
         });
 
