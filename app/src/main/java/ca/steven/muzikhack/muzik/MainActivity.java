@@ -21,6 +21,9 @@ import com.muzik.accessory.callback.IBatteryLevelCallback;
 import com.muzik.accessory.callback.IMotionCallback;
 import com.muzik.accessory.callback.IMzConnectionStateCallback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     /**
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         spotifyIntentFilter.addAction("com.spotify.music.playbackstatechanged");
         spotifyIntentFilter.addAction("com.spotify.music.metadatachanged");
         spotifyIntentFilter.addAction("com.spotify.music.queuechanged");
-        
+
 
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -117,7 +120,11 @@ public class MainActivity extends AppCompatActivity {
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+    long startTime;
+    ArrayList<Float> forwardAngles;
     public void onConnect() {
+        startTime = System.currentTimeMillis();
+        forwardAngles = new ArrayList<>(100);
         mza.getBatteryLevel(new IBatteryLevelCallback() {
             @Override
             public void onResponseReceived(int i) {
@@ -128,6 +135,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponseReceived(float x, float y, float z, float norm, float forwardAngle, float sideAngle) {
                 Log.i(TAG, String.format("accel X:%f Y:%f Z:%f N:%f FA:%f SA:%f", x, y, z, norm, forwardAngle, sideAngle));
+                long currTime = System.currentTimeMillis();
+                forwardAngles.add(forwardAngle);
+                if(currTime - startTime > 5000) {
+                    startTime = currTime;
+                    float high = 30.0f;
+                    float low = 8.0f;
+                    int numHigh = 0;
+                    int numLow = 0;
+                    for(Float angle : forwardAngles) {
+                        if(angle >= high) {
+                            numHigh++;
+                        } else if(angle <= low) {
+                            numLow++;
+                        }
+                    }
+                    if(Math.abs(numHigh - numLow) < 10) {
+                        if(haveMetadata) {
+                            // send to spotify
+                            Log.i(TAG, String.format("new Liking song %s - %s on spotify", artistName, trackName));
+                        }
+                    }
+                    Log.i(TAG, String.format("high: %f low: %f", numHigh, numLow));
+                    forwardAngles.clear();
+                }
             }
         });
         mza.registerForMotions(new IMotionCallback() {
