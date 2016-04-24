@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -55,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver spotifyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "Intent Detected.", Toast.LENGTH_LONG).show();
+//            Toast.makeText(context, "Intent Detected.", Toast.LENGTH_LONG).show();
             String action = intent.getAction();
             if (action.equals(BroadcastTypes.METADATA_CHANGED)) {
                 trackId = intent.getStringExtra("id");
@@ -132,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     long startTime;
+    double norms = 0;
     ArrayList<Float> forwardAngles;
     public void onConnect() {
         startTime = System.currentTimeMillis();
@@ -149,10 +149,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, String.format("accel X:%f Y:%f Z:%f N:%f FA:%f SA:%f", x, y, z, norm, forwardAngle, sideAngle));
                 long currTime = System.currentTimeMillis();
                 forwardAngles.add(forwardAngle);
-                if(currTime - startTime > 5000) {
+                norms = norms + norm;
+
+                if(currTime - startTime > 1000) {
                     startTime = currTime;
-                    float high = 30.0f;
-                    float low = 10.0f;
+
+                    Float sum = 0.0f;
+
+                    for (Float f : forwardAngles){
+                        sum = sum + f;
+                    }
+                    float mean = sum / forwardAngles.size();
+                    float high = mean + 5;
+                    float low = mean - 5;
                     int numHigh = 0;
                     int numLow = 0;
                     for(Float angle : forwardAngles) {
@@ -162,18 +171,29 @@ public class MainActivity extends AppCompatActivity {
                             numLow++;
                         }
                     }
-                    if(Math.abs(numHigh - numLow) < 10) {
+//                    songInfos.add("hi" + trackName);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetInvalidated();
+                        }
+                    });
+                    int diff = numHigh - numLow;
+                    if( numHigh >= 5 && numLow >= 5) {
                         if(haveMetadata) {
                             // for now
                             String songInfo = artistName + " - " + trackName;
-                            songInfos.add(songInfo);
-                            adapter.notifyDataSetInvalidated();
+                            if(!songInfos.contains(songInfo)) {
+                                songInfos.add(songInfo);
+                            }
+
                             // send to spotify
                             Log.i(TAG, String.format("new Liking song %s - %s on spotify", artistName, trackName));
                         }
                     }
-                    Log.i(TAG, String.format("high: %d low: %d", numHigh, numLow));
+                    Log.i(TAG, String.format("mean: %f numHigh: %d numLow: %d norms: %f", mean, numHigh, numLow, norms));
                     forwardAngles.clear();
+                    norms = 0;
                 }
             }
         });
