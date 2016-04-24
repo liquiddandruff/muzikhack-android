@@ -82,17 +82,9 @@ public class MainActivity extends AppCompatActivity {
         spotifyIntentFilter.addAction("com.spotify.music.queuechanged");
 
         listView = (ListView) findViewById(R.id.listView);
-        String[] values = new String[] { "Android List View",
-                "Adapter implementation",
-                "Simple List View In Android",
-                "Create List View Android",
-                "Android Example",
-                "List View Source Code",
-                "List View Array Adapter",
-                "Android Example List View"
-        };
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        songInfos = new ArrayList<>();
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, songInfos);
         listView.setAdapter(adapter);
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
@@ -144,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
     public void onConnect() {
         startTime = System.currentTimeMillis();
         forwardAngles = new ArrayList<>(100);
-        songInfos = new ArrayList<>();
 
         mza.getBatteryLevel(new IBatteryLevelCallback() {
             @Override
@@ -176,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                             // for now
                             String songInfo = artistName + " - " + trackName;
                             songInfos.add(songInfo);
-                            
+                            adapter.notifyDataSetInvalidated();
                             // send to spotify
                             Log.i(TAG, String.format("new Liking song %s - %s on spotify", artistName, trackName));
                         }
