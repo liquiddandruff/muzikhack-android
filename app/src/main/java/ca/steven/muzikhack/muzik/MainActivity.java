@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
         static final String QUEUE_CHANGED = SPOTIFY_PACKAGE + ".queuechanged";
         static final String METADATA_CHANGED = SPOTIFY_PACKAGE + ".metadatachanged";
     }
+
+    ListView listView;
+    ArrayAdapter<String> adapter;
+
     boolean haveMetadata = false;
     String trackId;
     String artistName;
@@ -74,7 +80,19 @@ public class MainActivity extends AppCompatActivity {
         spotifyIntentFilter.addAction("com.spotify.music.metadatachanged");
         spotifyIntentFilter.addAction("com.spotify.music.queuechanged");
 
+        listView = (ListView) findViewById(R.id.listView);
+        String[] values = new String[] { "Android List View",
+                "Adapter implementation",
+                "Simple List View In Android",
+                "Create List View Android",
+                "Android Example",
+                "List View Source Code",
+                "List View Array Adapter",
+                "Android Example List View"
+        };
 
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, values);
+        listView.setAdapter(adapter);
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             Log.i(TAG, "Device does not support bluetooth");
