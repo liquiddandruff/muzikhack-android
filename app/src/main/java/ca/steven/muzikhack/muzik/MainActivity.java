@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -24,7 +24,6 @@ import com.muzik.accessory.callback.IMotionCallback;
 import com.muzik.accessory.callback.IMzConnectionStateCallback;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -51,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     String artistName;
     String albumName;
     String trackName;
+    ArrayList<String> songInfos;
+
     private BroadcastReceiver spotifyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -143,6 +144,8 @@ public class MainActivity extends AppCompatActivity {
     public void onConnect() {
         startTime = System.currentTimeMillis();
         forwardAngles = new ArrayList<>(100);
+        songInfos = new ArrayList<>();
+
         mza.getBatteryLevel(new IBatteryLevelCallback() {
             @Override
             public void onResponseReceived(int i) {
@@ -158,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
                 if(currTime - startTime > 5000) {
                     startTime = currTime;
                     float high = 30.0f;
-                    float low = 8.0f;
+                    float low = 10.0f;
                     int numHigh = 0;
                     int numLow = 0;
                     for(Float angle : forwardAngles) {
@@ -170,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if(Math.abs(numHigh - numLow) < 10) {
                         if(haveMetadata) {
+                            // for now
+                            String songInfo = artistName + " - " + trackName;
+                            songInfos.add(songInfo);
+                            
                             // send to spotify
                             Log.i(TAG, String.format("new Liking song %s - %s on spotify", artistName, trackName));
                         }
