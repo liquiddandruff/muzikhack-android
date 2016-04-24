@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.i(TAG, String.format("new Liking song %s - %s on spotify", artistName, trackName));
                         }
                     }
-                    Log.i(TAG, String.format("high: %f low: %f", numHigh, numLow));
+                    Log.i(TAG, String.format("high: %d low: %d", numHigh, numLow));
                     forwardAngles.clear();
                 }
             }
