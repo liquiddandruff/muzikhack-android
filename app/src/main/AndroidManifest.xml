@@ -28,9 +28,9 @@
             <intent-filter>
 
                 <!-- Spotify -->
-                <action android:name="com.spotify.music.playbackstatechanged" />
-                <action android:name="com.spotify.music.metadatachanged" />
-                <action android:name="com.spotify.music.queuechanged" />
+                <action android:name="com.spotify.music.playbackstatechangedA" />
+                <action android:name="com.spotify.music.metadatachangedA" />
+                <action android:name="com.spotify.music.queuechangedA" />
 
             </intent-filter>
 
